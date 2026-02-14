@@ -1,0 +1,279 @@
+/* ========== ОСНОВНЫЕ ЦВЕТА ========== */
+:root {
+  --bg-dark: #1a1a1a;
+  --bg-darker: #0d0d0d;
+  --bg-card: #2d2d2d;
+  --text-light: #ffffff;
+  --text-muted: #b0b0b0;
+  --orange: #f39c12;
+  --orange-dark: #e67e22;
+  --border: #404040;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== НАВИГАЦИЯ ========== */
+.navbar {
+  background-color: var(--bg-darker) !important;
+  border-bottom: 3px solid var(--orange);
+  padding: 1rem 0;
+}
+
+.navbar-brand {
+  color: var(--orange) !important;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.navbar-brand:hover {
+  color: var(--orange-dark) !important;
+}
+
+.nav-link {
+  color: var(--text-light) !important;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: var(--orange) !important;
+}
+
+.nav-link.active {
+  color: var(--orange) !important;
+}
+
+/* ========== КАРТОЧКИ ========== */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--orange);
+  box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+}
+
+.card-title {
+  color: var(--orange);
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.price-tag {
+  color: var(--orange);
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+/* ========== ФОРМЫ ========== */
+.form-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: var(--bg-card);
+  border-radius: 15px;
+  border: 1px solid var(--border);
+}
+
+.form-label {
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  background-color: #333;
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.form-control:focus {
+  background-color: #404040;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25);
+  color: var(--text-light);
+}
+
+.form-control::placeholder {
+  color: #666;
+}
+
+/* ========== КНОПКИ ========== */
+.btn-orange {
+  background-color: var(--orange);
+  color: var(--bg-darker);
+  font-weight: bold;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-orange:hover {
+  background-color: var(--orange-dark);
+  color: var(--bg-darker);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+}
+
+.btn-outline-orange {
+  background-color: transparent;
+  color: var(--orange);
+  border: 2px solid var(--orange);
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-outline-orange:hover {
+  background-color: var(--orange);
+  color: var(--bg-darker);
+  transform: translateY(-2px);
+}
+
+/* ========== ГЛАВНАЯ СТРАНИЦА ========== */
+.hero-section {
+  background: linear-gradient(135deg, var(--bg-darker), var(--bg-dark));
+  padding: 100px 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-title {
+  color: var(--orange);
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.hero-subtitle {
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========== КАТАЛОГ ========== */
+.catalog-header {
+  background-color: var(--bg-card);
+  padding: 40px 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border);
+}
+
+.catalog-title {
+  color: var(--orange);
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+/* ========== АЛЕРТЫ (СООБЩЕНИЯ) ========== */
+.alert {
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  border: none;
+}
+
+.alert-success {
+  background-color: #1e3a2e;
+  color: #d4edda;
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  background-color: #3a1e1e;
+  color: #f8d7da;
+  border-left: 4px solid #dc3545;
+}
+
+.alert-info {
+  background-color: #1e3a4a;
+  color: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+}
+
+/* ========== ФУТЕР ========== */
+footer {
+  background-color: var(--bg-darker);
+  color: var(--text-muted);
+  padding: 30px 0;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+/* ========== УТИЛИТЫ ========== */
+.text-orange {
+  color: var(--orange);
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+a {
+  color: var(--orange);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--orange-dark);
+  text-decoration: underline;
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 768px) {
+  .hero-title {
+      font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+      font-size: 1.1rem;
+      padding: 0 20px;
+  }
+  
+  .form-container {
+      margin: 20px;
+      padding: 20px;
+  }
+  
+  .catalog-title {
+      font-size: 2rem;
+      padding: 0 20px;
+  }
+}
