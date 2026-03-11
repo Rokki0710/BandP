@@ -4,58 +4,6 @@ import './style.css';
 // ========== КОНФИГУРАЦИЯ ==========
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
-// ========== МОК-ДАННЫЕ ДЛЯ КАТАЛОГА ==========
-const mockStudios = [
-    {
-        id: 1,
-        name: "Студия 'Свет'",
-        description: "Профессиональная фотостудия с естественным светом. Полный комплект оборудования.",
-        price_per_hour: 1500,
-        address: "ул. Пушкина, 10",
-        owner_username: "photo_pro"
-    },
-    {
-        id: 2,
-        name: "Лофт #1",
-        description: "Просторное помещение в стиле лофт. Идеально для фото и видео съемок.",
-        price_per_hour: 2000,
-        address: "пр. Ленина, 25",
-        owner_username: "loft_master"
-    },
-    {
-        id: 3,
-        name: "Видеостудия Pro",
-        description: "Профессиональная видеостудия с хромакеем и профессиональным светом.",
-        price_per_hour: 2500,
-        address: "ул. Кирова, 5",
-        owner_username: "video_pro"
-    },
-    {
-        id: 4,
-        name: "Минимал",
-        description: "Небольшая уютная студия для портретной съемки.",
-        price_per_hour: 1000,
-        address: "ул. Советская, 15",
-        owner_username: "minimal_photo"
-    },
-    {
-        id: 5,
-        name: "Интерьерная студия",
-        description: "Студия с интерьерными зонами для предметной съемки.",
-        price_per_hour: 1800,
-        address: "пр. Мира, 30",
-        owner_username: "interior_pro"
-    },
-    {
-        id: 6,
-        name: "Премиум Лофт",
-        description: "Элитная студия с профессиональным оборудованием премиум-класса.",
-        price_per_hour: 3500,
-        address: "ул. Набережная, 5",
-        owner_username: "premium_pro"
-    }
-];
-
 // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С СООБЩЕНИЯМИ ==========
 function showMessage(message, type = 'info') {
     const container = document.getElementById('message-container');
@@ -78,7 +26,7 @@ function showMessage(message, type = 'info') {
 }
 
 // ========== ОТОБРАЖЕНИЕ КАТАЛОГА ==========
-function displayStudios() {
+function renderStudios(studios) {
     const container = document.getElementById('catalog-container');
     if (!container) return;
     
@@ -90,7 +38,7 @@ function displayStudios() {
     row.className = 'row';
     
     // Добавляем каждую студию
-    mockStudios.forEach(studio => {
+    studios.forEach(studio => {
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4 mb-4';
         
@@ -116,31 +64,109 @@ function displayStudios() {
     container.appendChild(row);
 }
 
+async function loadStudios() {
+    const container = document.getElementById('catalog-container');
+    if (!container) return;
+
+    container.innerHTML = '<p class="text-center py-4">Загрузка студий...</p>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/studios/`);
+        if (!response.ok) {
+            throw new Error(`Ошибка загрузки: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = '<p class="text-center py-4">Пока нет ни одной студии.</p>';
+            return;
+        }
+        renderStudios(data);
+    } catch (error) {
+        console.error('Ошибка при загрузке студий:', error);
+        container.innerHTML = '<p class="text-center text-danger py-4">Не удалось загрузить студии. Проверьте работу backend.</p>';
+    }
+}
+
 // ========== ФУНКЦИИ АВТОРИЗАЦИИ ==========
 async function registerUser(userData) {
-    console.log('Регистрация:', userData);
-    showMessage('Регистрация прошла успешно!', 'success');
-    
-    // Сохраняем данные в localStorage для демо
-    localStorage.setItem('demo_user', JSON.stringify(userData));
-    
-    setTimeout(() => {
-        window.location.href = '/login.html';
-    }, 1500);
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/users/register/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+            let errorMessage = 'Ошибка регистрации';
+            try {
+                const errorData = await response.json();
+                if (errorData.username && errorData.username[0]) {
+                    errorMessage = errorData.username[0];
+                } else if (errorData.email && errorData.email[0]) {
+                    errorMessage = errorData.email[0];
+                }
+            } catch {
+                // ignore json parse errors and use default message
+            }
+            showMessage(errorMessage, 'danger');
+            return;
+        }
+
+        const data = await response.json();
+        console.log('Успешная регистрация:', data);
+        showMessage('Регистрация прошла успешно!', 'success');
+
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 1500);
+    } catch (error) {
+        console.error('Ошибка при запросе регистрации:', error);
+        showMessage('Сервер недоступен. Проверьте, запущен ли backend.', 'danger');
+    }
 }
 
 async function loginUser(credentials) {
-    console.log('Вход:', credentials);
-    
-    // Для демо просто сохраняем токен
-    localStorage.setItem('token', 'demo-token-123');
-    localStorage.setItem('username', credentials.username);
-    
-    showMessage('Вход выполнен успешно!', 'success');
-    
-    setTimeout(() => {
-        window.location.href = '/index.html';
-    }, 1500);
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/token/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+        });
+
+        if (!response.ok) {
+            let errorMessage = 'Ошибка входа. Проверьте логин и пароль.';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                }
+            } catch {
+                // ignore json parse errors
+            }
+            showMessage(errorMessage, 'danger');
+            return;
+        }
+
+        const data = await response.json();
+        localStorage.setItem('token', data.access);
+        if (data.refresh) {
+            localStorage.setItem('refreshToken', data.refresh);
+        }
+        localStorage.setItem('username', credentials.username);
+
+        showMessage('Вход выполнен успешно!', 'success');
+
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 1500);
+    } catch (error) {
+        console.error('Ошибка при запросе входа:', error);
+        showMessage('Сервер недоступен. Проверьте, запущен ли backend.', 'danger');
+    }
 }
 
 // ========== ВЫХОД ИЗ СИСТЕМЫ ==========
@@ -249,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Загружаем каталог если нужно
     if (page === 'catalog.html') {
-        displayStudios();
+        loadStudios();
     }
     
     // Инициализируем формы
