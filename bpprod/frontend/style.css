@@ -277,3 +277,49 @@ a:hover {
       padding: 0 20px;
   }
 }
+
+/* Дополнительные стили для ЛР №2 */
+.bg-orange {
+    background-color: var(--orange);
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-muted);
+    background-color: transparent;
+    border: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--orange);
+    background-color: transparent;
+    border-bottom: 2px solid var(--orange);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--orange);
+    border-color: transparent;
+}
+
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border);
+}
+
+.dropdown-item {
+    color: var(--text-light);
+}
+
+.dropdown-item:hover {
+    background-color: var(--orange);
+    color: var(--bg-darker);
+}
+
+.table-dark {
+    background-color: var(--bg-card);
+    color: var(--text-light);
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+}

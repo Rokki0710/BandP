@@ -361,49 +361,271 @@ B&P prod — веб-приложение для профессиональног
 ## Структура репозитория
 
 ```
-bpprod/
+bpprod/                          # Корневая папка проекта
 │
-├── bpprod/               # Основная папка Django-проекта
-│   ├── bpprod/           # Настройки проекта
-│   ├── users/            # Приложение пользователей
-│   │   ├── models.py     # Модель User
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   ├── catalog/          # Приложение каталога
-│   │   ├── models.py     # Модели Studio, Equipment, Specialist
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   ├── bookings/         # Приложение бронирований
-│   │   ├── models.py     # Модель Booking
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   └── notifications/    # Приложение уведомлений
-│       ├── bot.py        # Telegram-бот
-│       ├── signals.py    # Сигналы для отправки уведомлений
-│       └── management/   # Команда для запуска бота
-│           └── commands/
-│               └── runbot.py
+├── bpprod/                       # Папка Django проекта (настройки)
+│   ├── __init__.py
+│   ├── settings.py               # Настройки проекта (обновленные с PostgreSQL)
+│   ├── urls.py                    # Главные URL (JWT, API, docs)
+│   ├── wsgi.py
+│   ├── asgi.py
+│   └── permissions.py             # Кастомные разрешения (IsOwnerOrReadOnly)
 │
-├── frontend/             # Frontend-часть
-│   ├── index.html        # Главная страница
-│   ├── catalog.html      # Каталог
-│   ├── login.html        # Форма входа
-│   ├── register.html     # Форма регистрации
-│   ├── profile.html      # Личный кабинет
-│   ├── add_object.html   # Добавление объекта (для владельцев)
-│   ├── style.css         # Стили
-│   └── script.js         # Основной JavaScript
+├── users/                         # Приложение пользователей
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py                   # Модель User (AbstractUser + phone, is_client)
+│   ├── serializers.py              # UserSerializer, RegisterSerializer
+│   ├── views.py                    # UserViewSet, RegisterView
+│   ├── urls.py                     # Маршруты users (register, users)
+│   └── tests.py
 │
-├── fixtures/             # Тестовые данные
+├── catalog/                        # Приложение каталога
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py                   # Studio, Equipment, Specialist
+│   ├── serializers.py              # StudioSerializer, EquipmentSerializer, SpecialistSerializer
+│   ├── views.py                    # StudioViewSet, EquipmentViewSet, SpecialistViewSet
+│   ├── urls.py                     # Маршруты каталога (studios, equipment, specialists)
+│   └── tests.py
+│
+├── bookings/                       # Приложение бронирований
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py                   # Booking (с проверкой доступности)
+│   ├── serializers.py              # BookingSerializer (расчет стоимости)
+│   ├── views.py                    # BookingViewSet (+ кастомный action 'my')
+│   ├── urls.py                     # Маршруты бронирований (bookings, bookings/my/)
+│   └── tests.py                    # Unit-тесты (создание пользователя, брони, проверка доступности)
+│
+├── notifications/                  # Приложение уведомлений (пока пустое, для будущего Telegram-бота)
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── ad[catalog](catalog)min.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── bot.py                      # (будет позже) Telegram-бот
+│   ├── signals.py                  # (будет позже) Сигналы для уведомлений
+│   ├── management/                  # (будет позже) Команды для запуска бота
+│   │   └── commands/
+│   │       └── runbot.py
+│   └── tests.py
+│
+├── frontend/                        # Frontend часть (ваша существующая)
+│   ├── index.html
+│   ├── catalog.html
+│   ├── login.html
+│   ├── register.html
+│   ├── profile.html
+│   ├── add_object.html
+│   ├── style.css
+│   └── script.js                     # (нужно обновить для работы с реальным API)
+│
+├── media/                            # Папка для загруженных изображений
+│   ├── studios/
+│   ├── equipment/
+│   └── specialists/
+│
+├── fixtures/                          # Тестовые данные
 │   └── demo_data.json
 │
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── .env.example
-├── .pre-commit-config.yaml
-└── README.md
+├── requirements.txt                   # Зависимости Python
+├── Dockerfile                         # Docker образ для Django
+├── docker-compose.yml                  # Docker Compose (Django + PostgreSQL)
+├── .env.example                        # Пример переменных окружения
+├── .gitignore
+├── manage.py
+└── README.md                           # Документация проекта
 ```
+
+
+Вот краткая инструкция по запуску проекта (README.md):
+
+```markdown
+# B&P prod — Инструкция по запуску
+
+## Требования
+
+- Python 3.10+
+- Docker и Docker Compose (или SQLite для локального запуска)
+- Node.js 16+ (для фронтенда)
+
+---
+
+## 🐳 Запуск с Docker (рекомендуется)
+
+### 1. Клонировать репозиторий
+```bash
+git clone <url-репозитория>
+cd bpprod
+```
+
+### 2. Создать файл окружения
+```bash
+cp .env.example .env
+```
+
+### 3. Запустить контейнеры
+```bash
+docker-compose up -d
+```
+
+### 4. Применить миграции
+```bash
+docker-compose exec web python manage.py migrate
+```
+
+### 5. Создать суперпользователя (админа)
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+### 6. Запустить Telegram бота
+```bash
+docker-compose exec web python manage.py runbot
+```
+
+### 7. Открыть в браузере
+- **API документация:** http://localhost:8000/api/docs/
+- **Админ-панель:** http://localhost:8000/admin/
+- **Фронтенд:** http://localhost:5173/
+
+### 8. Остановить контейнеры
+```bash
+docker-compose down
+```
+
+---
+
+## 💻 Локальный запуск (без Docker)
+
+### Backend
+
+1. **Создать виртуальное окружение**
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# или
+venv\Scripts\activate     # Windows
+```
+
+2. **Установить зависимости**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Настроить SQLite (отредактировать settings.py)**
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+```
+
+4. **Применить миграции**
+```bash
+python manage.py migrate
+```
+
+5. **Создать суперпользователя**
+```bash
+python manage.py createsuperuser
+```
+
+6. **Запустить сервер**
+```bash
+python manage.py runserver
+```
+
+### Frontend
+
+7. **Установить и запустить фронтенд**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Telegram Bot
+
+8. **Запустить бота**
+```bash
+python manage.py runbot
+```
+
+---
+
+##  Устранение проблем
+
+### CORS ошибка при регистрации
+Добавьте в `settings.py`:
+```python
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+```
+
+### Ошибка "password2 is required"
+Фронтенд должен отправлять оба поля:
+```javascript
+{
+    "password": "password",
+    "password2": "password"  // обязательно!
+}
+```
+
+### Ошибка DisallowedHost
+Добавьте в `settings.py`:
+```python
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
+```
+
+### Docker не видит БД
+```bash
+docker-compose ps
+docker-compose logs db
+```
+
+---
+
+##  API Эндпоинты
+
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| POST | `/api/token/` | Вход (получение токена) |
+| POST | `/api/register/` | Регистрация |
+| GET | `/api/studios/` | Список студий |
+| GET | `/api/equipment/` | Список оборудования |
+| GET | `/api/specialists/` | Список специалистов |
+| POST | `/api/bookings/` | Создать бронь |
+| GET | `/api/bookings/my/` | Мои брони |
+| GET | `/api/docs/` | Swagger документация |
+
+---
+
+##  Проверка работы
+
+1. **Бэкенд:** http://localhost:8000/api/docs/
+2. **Фронтенд:** http://localhost:5173/
+3. **Регистрация:** заполнить форму → нажать "Зарегистрироваться"
+4. **Вход:** использовать созданные учетные данные
+5. **Каталог:** должны загрузиться студии из API
+
+---
+
+```
+
+Этот файл содержит только инструкцию по запуску — коротко и понятно.

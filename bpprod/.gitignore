@@ -28,7 +28,7 @@ cat > .gitignore << 'EOF'
 
 # IDE
 .vscode/
-.idea/
+../.idea/
 *.swp
 *.swo
 *~
