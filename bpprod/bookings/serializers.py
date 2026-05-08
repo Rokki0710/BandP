@@ -63,5 +63,7 @@ class BookingSerializer(serializers.ModelSerializer):
             start = validated_data['start_time']
             end = validated_data['end_time']
             hours = (datetime.combine(datetime.min, end) - datetime.combine(datetime.min, start)).seconds / 3600
-            validated_data['total_price'] = float(item.price_per_hour) * hours
+            total = float(item.price_per_hour) * hours
+            validated_data['total_price'] = round(total, 2)  # Округление до 2 знаков
+
         return super().create(validated_data)

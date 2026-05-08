@@ -20,7 +20,7 @@ class Booking(models.Model):
     booking_date = models.DateField(verbose_name="Дата бронирования")
     start_time = models.TimeField(verbose_name="Время начала")
     end_time = models.TimeField(verbose_name="Время окончания")
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая стоимость")
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Общая стоимость")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -36,7 +36,7 @@ class Booking(models.Model):
 
     def clean(self):
         # Проверка, что выбран хотя бы один объект
-        if not any([self.studio, self.equipment, self.studio]):
+        if not any([self.studio, self.equipment, self.specialist]):
             raise ValidationError("Должен быть выбран хотя бы один объект (студия, оборудование или специалист)")
 
         # Проверка времени
@@ -83,5 +83,4 @@ class Booking(models.Model):
                     raise ValidationError("Этот специалист уже занят в это время")
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        pass

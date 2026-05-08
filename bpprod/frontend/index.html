@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>B&P prod - Главная</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -35,51 +35,54 @@
         </div>
     </nav>
 
-    <!-- Hero секция -->
-    <section class="hero-section">
-        <div class="container">
-            <h1 class="hero-title">B&P prod</h1>
-            <p class="hero-subtitle">Сервис бронирования для профессионального медиасообщества</p>
-            <div class="mt-4">
-                <a href="/catalog.html" class="btn btn-orange btn-lg me-2">
-                    <i class="bi bi-search me-2"></i>Найти студию
-                </a>
-                <a href="/register.html" class="btn btn-outline-orange btn-lg">
-                    <i class="bi bi-person-plus me-2"></i>Присоединиться
-                </a>
+    <!-- ОСНОВНОЙ КОНТЕНТ (обёрнут в main) -->
+    <main class="main-content">
+        <!-- Hero секция -->
+        <section class="hero-section">
+            <div class="container">
+                <h1 class="hero-title">B&P prod</h1>
+                <p class="hero-subtitle">Сервис бронирования для профессионального медиасообщества</p>
+                <div class="mt-4">
+                    <a href="/catalog.html" class="btn btn-orange btn-lg me-2">
+                        <i class="bi bi-search me-2"></i>Найти студию
+                    </a>
+                    <a href="/register.html" class="btn btn-outline-orange btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Присоединиться
+                    </a>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Особенности -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Почему выбирают нас</h2>
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card text-center p-4">
-                        <i class="bi bi-camera display-1 text-orange mb-3"></i>
-                        <h5>Профессиональные студии</h5>
-                        <p class="text-muted">Современное оборудование и комфортные условия для съемок</p>
+        <!-- Особенности -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="text-center mb-5">Почему выбирают нас</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center p-4">
+                            <i class="bi bi-camera display-1 text-orange mb-3"></i>
+                            <h5>Профессиональные студии</h5>
+                            <p class="text-muted">Современное оборудование и комфортные условия для съемок</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card text-center p-4">
-                        <i class="bi bi-people display-1 text-orange mb-3"></i>
-                        <h5>Опытные специалисты</h5>
-                        <p class="text-muted">Работа с лучшими фотографами и видеографами города</p>
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center p-4">
+                            <i class="bi bi-people display-1 text-orange mb-3"></i>
+                            <h5>Опытные специалисты</h5>
+                            <p class="text-muted">Работа с лучшими фотографами и видеографами города</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card text-center p-4">
-                        <i class="bi bi-clock-history display-1 text-orange mb-3"></i>
-                        <h5>Быстрое бронирование</h5>
-                        <p class="text-muted">Бронируйте в пару кликов в любое время суток</p>
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center p-4">
+                            <i class="bi bi-clock-history display-1 text-orange mb-3"></i>
+                            <h5>Быстрое бронирование</h5>
+                            <p class="text-muted">Бронируйте в пару кликов в любое время суток</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Футер -->
     <footer>
@@ -91,6 +94,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Наш JS (ВАЖНО: type="module") -->
+    <script src="api.js"></script>
     <script type="module" src="/main.js"></script>
 </body>
 </html>

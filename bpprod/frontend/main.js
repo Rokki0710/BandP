@@ -155,11 +155,9 @@ async function loadBookingForm() {
     const endTime = document.getElementById('end-time');
     const priceInput = document.getElementById('total-price');
 
-    // Устанавливаем минимальную дату - сегодня
     const today = new Date().toISOString().split('T')[0];
     dateInput.min = today;
 
-    // Загружаем объекты при выборе типа
     typeSelect.addEventListener('change', async () => {
         const type = typeSelect.value;
         if (!type) {
@@ -178,56 +176,87 @@ async function loadBookingForm() {
         });
     });
 
-    // Расчет стоимости
-  function calculatePrice() {
-    const priceInput = document.getElementById('total-price');
+    function calculatePrice() {
+        if (!dateInput.value || !startTime.value || !endTime.value || !itemSelect.value) {
+            priceInput.value = '';
+            priceInput.style.color = '';
+            return;
+        }
 
-    if (!dateInput.value || !startTime.value || !endTime.value || !itemSelect.value) {
-        priceInput.value = '';
-        return;
+        const start = new Date(`${dateInput.value}T${startTime.value}`);
+        const end = new Date(`${dateInput.value}T${endTime.value}`);
+
+        if (start >= end) {
+            priceInput.value = 'Ошибка: время начала позже времени окончания';
+            priceInput.style.color = '#dc3545';
+            return;
+        }
+
+        priceInput.style.color = '';
+        const hours = Math.round(((end - start) / (1000 * 60 * 60)) * 100) / 100;
+
+        if (hours > 0) {
+            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+            const pricePerHour = parseInt(selectedOption.dataset.price) || 0;
+            const total = Math.round((hours * pricePerHour) * 100) / 100;
+            priceInput.value = `${total.toLocaleString()} ₽ (${hours.toFixed(2)} час(ов))`;
+        } else {
+            priceInput.value = '';
+        }
     }
-
-    const start = new Date(`${dateInput.value}T${startTime.value}`);
-    const end = new Date(`${dateInput.value}T${endTime.value}`);
-
-    // Проверка: время начала не может быть позже времени окончания
-    if (start >= end) {
-        priceInput.value = 'Ошибка: время начала позже времени окончания';
-        priceInput.style.color = '#dc3545';
-        return;
-    }
-
-    // Восстанавливаем цвет если была ошибка
-    priceInput.style.color = '';
-
-    const hours = (end - start) / (1000 * 60 * 60);
-
-    if (hours > 0) {
-        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-        const pricePerHour = parseInt(selectedOption.dataset.price) || 0;
-        const total = hours * pricePerHour;
-        priceInput.value = `${total.toLocaleString()} ₽ (${hours.toFixed(2)} час(ов))`;
-    } else {
-        priceInput.value = '';
-    }
-}
 
     dateInput.addEventListener('change', calculatePrice);
     startTime.addEventListener('change', calculatePrice);
     endTime.addEventListener('change', calculatePrice);
     itemSelect.addEventListener('change', calculatePrice);
 
-    // Отправка формы
     const form = document.getElementById('booking-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        if (!isAuthenticated()) {
+            showMessage('Пожалуйста, войдите в систему', 'error');
+            setTimeout(() => window.location.href = '/login.html', 1500);
+            return;
+        }
+
+        if (!dateInput.value || !startTime.value || !endTime.value || !itemSelect.value) {
+            showMessage('Заполните все поля', 'error');
+            return;
+        }
+
+        const start = new Date(`${dateInput.value}T${startTime.value}`);
+        const end = new Date(`${dateInput.value}T${endTime.value}`);
+
+        if (isNaN(start) || isNaN(end)) {
+            showMessage('Выберите корректную дату и время', 'error');
+            return;
+        }
+
+        if (start >= end) {
+            showMessage('Ошибка: время начала не может быть позже времени окончания', 'error');
+            return;
+        }
+
+        // Рассчитываем часы и цену
+        const hours = Math.round(((end - start) / (1000 * 60 * 60)) * 100) / 100;
+        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        const pricePerHour = parseInt(selectedOption.dataset.price) || 0;
+        const totalPrice = Math.round((hours * pricePerHour) * 100) / 100;
+
+        console.log('Часы:', hours);
+        console.log('Цена за час:', pricePerHour);
+        console.log('Итоговая цена (округлена до 2 знаков):', totalPrice);
 
         const bookingData = {
             [typeSelect.value]: parseInt(itemSelect.value),
             booking_date: dateInput.value,
             start_time: startTime.value + ':00',
-            end_time: endTime.value + ':00'
+            end_time: endTime.value + ':00',
+            total_price: totalPrice
         };
+
+        console.log('Отправляем:', bookingData);
 
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
@@ -241,14 +270,14 @@ async function loadBookingForm() {
 
             if (response.ok) {
                 showMessage('Бронирование создано успешно!', 'success');
-                setTimeout(() => {
-                    window.location.href = '/profile.html';
-                }, 1500);
+                setTimeout(() => window.location.href = '/profile.html', 1500);
             } else {
                 const error = await response.json();
-                showMessage(error.error || 'Ошибка бронирования', 'error');
+                console.error('Ошибка:', error);
+                showMessage('Ошибка бронирования. Проверьте данные', 'error');
             }
         } catch (error) {
+            console.error('Ошибка:', error);
             showMessage('Ошибка соединения с сервером', 'error');
         } finally {
             submitBtn.disabled = false;
@@ -281,14 +310,14 @@ async function loadMyBookings() {
         return;
     }
 
-    let statusColors = {
+    const statusColors = {
         pending: 'warning',
         confirmed: 'success',
         cancelled: 'danger',
         completed: 'secondary'
     };
 
-    let statusText = {
+    const statusText = {
         pending: 'Ожидает',
         confirmed: 'Подтверждено',
         cancelled: 'Отменено',
@@ -313,7 +342,6 @@ async function loadMyBookings() {
                         if (booking.studio) itemName = `Студия: ${booking.studio_name || booking.studio}`;
                         else if (booking.equipment) itemName = `Оборудование: ${booking.equipment_name || booking.equipment}`;
                         else if (booking.specialist) itemName = `Специалист: ${booking.specialist_name || booking.specialist}`;
-
                         return `
                             <tr>
                                 <td>${itemName}</td>
@@ -336,14 +364,12 @@ async function registerUser(userData) {
         username: userData.username,
         email: userData.email,
         password: userData.password,
-        password2: userData.password,   // ← ЭТО КЛЮЧЕВОЕ ПОЛЕ!
+        password2: userData.password,
         first_name: userData.first_name || "",
         last_name: userData.last_name || "",
         phone: userData.phone || "",
         is_client: true
     };
-
-    console.log('Отправляем:', payload);  // Проверка в консоли
 
     const response = await apiRequest('/register/', {
         method: 'POST',
@@ -352,9 +378,6 @@ async function registerUser(userData) {
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Ошибка:', error);
-
-        // Показываем понятную ошибку пользователю
         if (error.password2) {
             showMessage('Необходимо подтверждение пароля', 'error');
         } else if (error.username) {
@@ -412,6 +435,7 @@ function updateNavbar() {
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="/catalog.html"><i class="bi bi-grid"></i> Каталог</a></li>
+                    <li><a class="dropdown-item" href="/add_object.html"><i class="bi bi-plus-circle"></i> Добавить объект</a></li>
                     <li><a class="dropdown-item" href="/profile.html"><i class="bi bi-person"></i> Профиль</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
@@ -442,8 +466,13 @@ function initRegisterForm() {
             return;
         }
 
-        if (password.length < 6) {
-            showMessage('Пароль должен быть не менее 6 символов', 'error');
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (password.length < 8) {
+            showMessage('Пароль должен быть не менее 8 символов', 'error');
+            return;
+        }
+        if (!passwordRegex.test(password)) {
+            showMessage('Пароль должен содержать буквы и цифры', 'error');
             return;
         }
 
@@ -465,12 +494,7 @@ function initRegisterForm() {
             showMessage('Регистрация успешна! Теперь войдите', 'success');
             setTimeout(() => window.location.href = '/login.html', 1500);
         } catch (error) {
-            try {
-                const err = JSON.parse(error.message);
-                showMessage(Object.values(err).flat().join(', '), 'error');
-            } catch {
-                showMessage('Ошибка регистрации', 'error');
-            }
+            showMessage('Ошибка регистрации', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Зарегистрироваться';
@@ -515,6 +539,73 @@ async function initProfilePage() {
     await loadMyBookings();
 }
 
+// ========== ДОБАВЛЕНИЕ ОБЪЕКТА ==========
+async function initAddObjectForm() {
+    const form = document.getElementById('add-object-form');
+    if (!form) return;
+
+    const typeSelect = document.getElementById('object-type');
+    const addressField = document.getElementById('address-field');
+    const typeField = document.getElementById('type-field');
+    const specializationField = document.getElementById('specialization-field');
+    const portfolioField = document.getElementById('portfolio-field');
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', () => {
+            const type = typeSelect.value;
+            if (addressField) addressField.style.display = type === 'studio' ? 'block' : 'none';
+            if (typeField) typeField.style.display = type === 'equipment' ? 'block' : 'none';
+            if (specializationField) specializationField.style.display = type === 'specialist' ? 'block' : 'none';
+            if (portfolioField) portfolioField.style.display = type === 'specialist' ? 'block' : 'none';
+        });
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const type = typeSelect.value;
+        const data = {
+            name: document.getElementById('name').value,
+            price_per_hour: parseInt(document.getElementById('price-per-hour').value),
+            description: document.getElementById('description').value
+        };
+
+        if (type === 'studio') {
+            data.address = document.getElementById('address').value;
+        } else if (type === 'equipment') {
+            data.type = document.getElementById('equipment-type').value;
+        } else if (type === 'specialist') {
+            data.specialization = document.getElementById('specialization').value;
+            data.portfolio = document.getElementById('portfolio').value;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Добавление...';
+
+        try {
+            const response = await apiRequest(`/${type}s/`, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showMessage('Объект успешно добавлен!', 'success');
+                form.reset();
+                setTimeout(() => window.location.href = '/catalog.html', 1500);
+            } else {
+                const error = await response.json();
+                showMessage('Ошибка: ' + JSON.stringify(error), 'error');
+            }
+        } catch (error) {
+            showMessage('Ошибка соединения с сервером', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Добавить';
+        }
+    });
+}
+
 // ========== ЗАПУСК ==========
 document.addEventListener('DOMContentLoaded', async () => {
     updateNavbar();
@@ -540,5 +631,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         loadBookingForm();
+    } else if (page === 'add_object.html') {
+        if (!isAuthenticated()) {
+            window.location.href = '/login.html';
+            return;
+        }
+        initAddObjectForm();
     }
 });

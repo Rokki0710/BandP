@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B&P prod - Добавить объект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <i class="bi bi-camera-reels-fill me-2"></i>B&P prod
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto" id="auth-links"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container">
+            <h2 class="text-center mb-4">
+                <i class="bi bi-plus-circle"></i> Добавить объект в каталог
+            </h2>
+
+            <div id="message-container"></div>
+
+            <form id="add-object-form">
+                <div class="mb-3">
+                    <label class="form-label">Тип объекта *</label>
+                    <select class="form-control" id="object-type" required>
+                        <option value="">Выберите тип</option>
+                        <option value="studio">Студия</option>
+                        <option value="equipment">Оборудование</option>
+                        <option value="specialist">Специалист</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Название *</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+
+                <div class="mb-3" id="address-field">
+                    <label class="form-label">Адрес</label>
+                    <input type="text" class="form-control" id="address">
+                </div>
+
+                <div class="mb-3" id="type-field" style="display: none;">
+                    <label class="form-label">Тип оборудования</label>
+                    <select class="form-control" id="equipment-type">
+                        <option value="photo">Фото</option>
+                        <option value="video">Видео</option>
+                        <option value="light">Свет</option>
+                        <option value="sound">Звук</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="specialization-field" style="display: none;">
+                    <label class="form-label">Специализация</label>
+                    <select class="form-control" id="specialization">
+                        <option value="photographer">Фотограф</option>
+                        <option value="videographer">Видеограф</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="portfolio-field" style="display: none;">
+                    <label class="form-label">Ссылка на портфолио</label>
+                    <input type="url" class="form-control" id="portfolio">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Цена за час (₽) *</label>
+                    <input type="number" class="form-control" id="price-per-hour" required min="0">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Описание</label>
+                    <textarea class="form-control" id="description" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-orange w-100">
+                    <i class="bi bi-save"></i> Добавить
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="api.js"></script>
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
